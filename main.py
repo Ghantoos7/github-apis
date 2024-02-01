@@ -1,10 +1,7 @@
 from flask import Flask, jsonify
 from github import Github, GithubException
 from github import Auth
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
 
 AUTH_KEY = os.getenv('AUTH_KEY')
 
