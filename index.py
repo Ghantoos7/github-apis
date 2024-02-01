@@ -1,7 +1,7 @@
 from flask import Flask, jsonify
 from github import Github, GithubException
 from github import Auth
-
+import os
 
 AUTH_KEY = os.getenv('AUTH_KEY')
 
