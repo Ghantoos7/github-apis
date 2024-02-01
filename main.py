@@ -10,7 +10,7 @@ AUTH_KEY = os.getenv('SECRET_KEY')
 
 app = Flask(__name__)
 
-@app.route('/get_total_own_commits')
+@app.route('/github/user/commits/total')
 def get_total_own_commits():
 
     auth = Auth.Token(AUTH_KEY)
