@@ -30,6 +30,6 @@ def get_total_own_commits():
     except GithubException as e:
         return jsonify({"error": str(e), "message": "Error fetching data from GitHub"}), 500
 
-    return jsonify({"total_commits": total_own_commits})
+    return jsonify({ "schemaVersion": 1, "label": "Total Commits", "message": total_own_commits, "color": "red" })
 if __name__ == '__main__':
     app.run(debug=True)
