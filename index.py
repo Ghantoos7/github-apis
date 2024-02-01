@@ -1,4 +1,5 @@
 from flask import Flask, jsonify
+from flask_caching import Cache
 from github import Github, GithubException
 from github import Auth
 import os
@@ -7,7 +8,11 @@ AUTH_KEY = os.getenv('AUTH_KEY')
 
 app = Flask(__name__)
 
+app.config['CACHE_TYPE'] = 'simple'  # You can choose different backends like Redis, Memcached
+cache = Cache(app)
+
 @app.route('/github/user/commits/total')
+@cache.cached(timeout=3600)
 def get_total_own_commits():
 
     auth = Auth.Token(AUTH_KEY)
