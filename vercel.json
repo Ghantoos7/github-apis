@@ -6,6 +6,12 @@
         "dest": "index.py"
       }
     ],
+    "builds": [
+      {
+        "src": "index.py",
+        "use": "@vercel/python"
+      }
+    ],
     "env": {
       "AUTH_KEY": "@auth_key"
     }
