@@ -1,4 +1,3 @@
 Flask
-PyGithub
 Flask-Caching
-python-dotenv
+PyGithub
