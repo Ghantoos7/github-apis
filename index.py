@@ -3,9 +3,7 @@ from flask_caching import Cache
 from github import Github, GithubException
 from github import Auth
 import os
-from dotenv import load_dotenv
 
-load_dotenv()
 AUTH_KEY = os.getenv('AUTH_KEY')
 
 
