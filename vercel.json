@@ -1,19 +1,12 @@
 {
-    "version": 2,
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "index.py"
-      }
-    ],
-    "builds": [
-      {
-        "src": "index.py",
-        "use": "@vercel/python"
-      }
-    ],
-    "env": {
-      "AUTH_KEY": "@auth_key"
+  "version": 2,
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "index.py"
     }
+  ],
+  "env": {
+    "AUTH_KEY": "@auth_key"
   }
-  
+}
