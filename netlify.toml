@@ -1,4 +1,3 @@
 [build]
-  command = "echo 'No build command'"
-  publish = "build"  # If you have static files to publish, otherwise use an empty directory
-  functions = "netlify/functions"
+    publish = "public" 
+    functions = "netlify/functions"
