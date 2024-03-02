@@ -1,0 +1,20 @@
+
+{
+    "version": 2,
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "index.py"
+      }
+    ],
+    "builds": [
+      {
+        "src": "index.py",
+        "use": "@vercel/python"
+      }
+    ],
+    "env": {
+      "AUTH_KEY": "@auth_key"
+    }
+  }
+  
