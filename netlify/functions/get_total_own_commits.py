@@ -1,5 +1,3 @@
-# netlify/functions/get_total_own_commits.py
-
 import os
 import json
 from github import Github, GithubException
