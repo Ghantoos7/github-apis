@@ -56,7 +56,7 @@ def get_total_own_problems():
                 if content_file.type == "dir":
                     total_own_problems += 1
         except GithubException as e:
-            return jsonify({"error": str(e), "message": "Error fetching data from GitHub"}), 500
+            return jsonify({"error": str(e), "message": "Error fetching data from GitHub", "Auth key is set: ": AUTH_KEY is not None}), 500
         
         return jsonify({ "schemaVersion": 1, "label": "Total Problems Solved", "message": str(total_own_problems), "color": "blue" })
            
