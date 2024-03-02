@@ -40,7 +40,6 @@ def get_total_own_commits():
 
 
 @app.route('/github/user/problems/total')
-@cache.cached(timeout=3600)
 def get_total_own_problems():
     
         auth = Auth.Token(AUTH_KEY)
