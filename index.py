@@ -6,10 +6,6 @@ import os
 
 AUTH_KEY = os.getenv('AUTH_KEY')
 
-
-if not AUTH_KEY:
-    raise ValueError("Missing environment variable: AUTH_KEY")
-
 app = Flask(__name__)
 
 app.config['CACHE_TYPE'] = 'simple'  
@@ -51,8 +47,6 @@ def get_total_own_problems():
         g = Github(auth=auth)
     
         total_own_problems = 0
-
-        ## go over a specfic repo named LeetCode-Problems then count the number of folders in it
 
         try:
             user = g.get_user()
