@@ -19,6 +19,12 @@ def get_total_own_commits():
 
     total_own_commits = 0
 
+    user = g.get_user()
+
+    for repo in user.get_repos():
+
+        commits = repo.get_commits(author=user.login)
+        total_own_commits += commits.totalCount
     try:
         user = g.get_user()
         for repo in user.get_repos():
@@ -26,12 +32,13 @@ def get_total_own_commits():
                 commits = repo.get_commits(author=user.login)
                 total_own_commits += commits.totalCount
             except GithubException as e:
-                
+
                 if e.status == 409:
                     continue  
                 else:
                     raise  
     except GithubException as e:
+        
         return jsonify({"error": str(e), "message": "Error fetching data from GitHub"}), 500
 
     return jsonify({ "schemaVersion": 1, "label": "Total Commits", "message": str(total_own_commits), "color": "red" })
