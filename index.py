@@ -1,9 +1,11 @@
 from flask import Flask, jsonify
 from flask_caching import Cache
 from github import Github, GithubException
+from github import Auth
 import os
 
 AUTH_KEY = os.getenv('AUTH_KEY')
+print("Auth key is set: ", AUTH_KEY is not None)
 
 app = Flask(__name__)
 
@@ -14,8 +16,8 @@ cache = Cache(app)
 @cache.cached(timeout=3600)
 def get_total_own_commits():
 
-    g = Github(AUTH_KEY)
-
+    auth = Auth.Token(AUTH_KEY)
+    g = Github(auth=auth)
 
     total_own_commits = 0
 
@@ -41,8 +43,8 @@ def get_total_own_commits():
 @app.route('/github/user/problems/total')
 def get_total_own_problems():
     
-        g = Github(AUTH_KEY)
-
+        auth = Auth.Token(AUTH_KEY)
+        g = Github(auth=auth)
     
         total_own_problems = 0
 
