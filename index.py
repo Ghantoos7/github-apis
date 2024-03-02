@@ -34,12 +34,7 @@ def get_total_own_commits():
                 commits = repo.get_commits(author=user.login)
                 total_own_commits += commits.totalCount
             except GithubException as e:
-<<<<<<< HEAD
                 if e.status == 409: 
-=======
-
-                if e.status == 409:
->>>>>>> 7c96f8505ed927508b37c57d762c86e3c2d08444
                     continue  
                 else:
                     raise  
@@ -47,12 +42,7 @@ def get_total_own_commits():
         
         return jsonify({"error": str(e), "message": "Error fetching data from GitHub"}), 500
 
-<<<<<<< HEAD
     return jsonify({"schemaVersion": 1, "label": "Total Commits", "message": str(total_own_commits), "color": "red"})
-=======
-    return jsonify({ "schemaVersion": 1, "label": "Total Commits", "message": str(total_own_commits), "color": "red" })
-
->>>>>>> 7c96f8505ed927508b37c57d762c86e3c2d08444
 
 
 @app.route('/github/user/problems/total')
