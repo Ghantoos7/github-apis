@@ -3,8 +3,14 @@ from flask_caching import Cache
 from github import Github, GithubException
 from github import Auth
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 AUTH_KEY = os.getenv('AUTH_KEY')
+
+
+if not AUTH_KEY:
+    raise ValueError("Missing environment variable: AUTH_KEY")
 
 app = Flask(__name__)
 
@@ -36,5 +42,32 @@ def get_total_own_commits():
         return jsonify({"error": str(e), "message": "Error fetching data from GitHub"}), 500
 
     return jsonify({ "schemaVersion": 1, "label": "Total Commits", "message": str(total_own_commits), "color": "red" })
+
+
+
+@app.route('/github/user/problems/total')
+@cache.cached(timeout=3600)
+def get_total_own_problems():
+    
+        auth = Auth.Token(AUTH_KEY)
+        g = Github(auth=auth)
+    
+        total_own_problems = 0
+
+        ## go over a specfic repo named LeetCode-Problems then count the number of folders in it
+
+        try:
+            user = g.get_user()
+            repo = user.get_repo("LeetCode-Problems")
+            contents = repo.get_contents("")
+            for content_file in contents:
+                if content_file.type == "dir":
+                    total_own_problems += 1
+        except GithubException as e:
+            return jsonify({"error": str(e), "message": "Error fetching data from GitHub"}), 500
+        
+        return jsonify({ "schemaVersion": 1, "label": "Total Problems Solved", "message": str(total_own_problems), "color": "blue" })
+           
+    
 if __name__ == '__main__':
     app.run(debug=True)
