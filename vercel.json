@@ -1,18 +1,14 @@
-
 {
     "version": 2,
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "index.py"
-      }
-    ],
-    "builds": [
-      {
-        "src": "index.py",
-        "use": "@vercel/python"
-      }
-    ],
+    "builds": [{
+      "src": "index.py",
+      "use": "@vercel/python",
+      "config": { "maxLambdaSize": "50mb" }
+    }],
+    "routes": [{
+      "src": "/(.*)",
+      "dest": "index.py"
+    }],
     "env": {
       "AUTH_KEY": "@auth_key"
     }
