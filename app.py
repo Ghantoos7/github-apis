@@ -31,7 +31,7 @@ def get_total_own_commits():
         return jsonify({"error": str(e), "message": "Error fetching data from GitHub"}), 500
     return jsonify({ "schemaVersion": 1, "label": "Total Commits", "message": str(total_own_commits), "color": "red" })
 
-@app.route('/github/user/leetcode/problems/total')
+@app.route('/github/user/repos/<repo_name>/folders')
 def get_repo_folder_count(repo_name):
     g = Github(login_or_token=AUTH_KEY)
     folder_count = 0
