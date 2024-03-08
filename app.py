@@ -46,5 +46,26 @@ def get_repo_folder_count(repo_name):
         return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
     return jsonify({"schemaVersion": 1, "label": "Total Problems Solved", "message": str(folder_count), "color": "blue"})
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# 'Difficulty: Easy'
+# every directory has a README.md file inside the md file i want to check for the occurence of 'Difficulty: Easy'
+@app.route('/github/user/repos/<repo_name>/easy/total')
+def get_easy_problems_count(repo_name):
+    g = Github(login_or_token=AUTH_KEY)
+    easy_count = 0
+    try:
+        user = g.get_user()
+        repo = user.get_repo(repo_name)
+        contents = repo.get_contents("")
+        for content in contents:
+            if content.type == "dir":
+                dir_contents = repo.get_contents(content.path)
+                for dir_content in dir_contents:
+                    if dir_content.name == "README.md":
+                        if "Difficulty: Easy" in dir_content.decoded_content.decode("utf-8"):
+                            easy_count += 1
+    except GithubException as e:
+        return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
+    
+    return jsonify({"schemaVersion": 1, "label": "Easy Problems", "message": str(easy_count), "color": "green"})
+
+app.run(debug=True)
