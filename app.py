@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 from flask_caching import Cache
 from github import Github, GithubException
 import os
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 AUTH_KEY = os.getenv('AUTH_KEY')
 
@@ -46,9 +47,21 @@ def get_repo_folder_count(repo_name):
         return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
     return jsonify({"schemaVersion": 1, "label": "Total Problems Solved", "message": str(folder_count), "color": "blue"})
 
-# 'Difficulty: Easy'
-# every directory has a README.md file inside the md file i want to check for the occurence of 'Difficulty: Easy'
+
+def fetch_dir_contents(repo, dir_path):
+    """Function to fetch contents of a given directory in a repository."""
+    dir_contents = repo.get_contents(dir_path)
+    easy_count = 0
+    for dir_content in dir_contents:
+        if dir_content.name == "README.md":
+            if "Difficulty: Easy" in dir_content.decoded_content.decode("utf-8"):
+                easy_count += 1
+    return easy_count
+
+
+
 @app.route('/github/user/repos/<repo_name>/easy/total')
+@cache.cached(timeout=43200, key_prefix='easy_problems')
 def get_easy_problems_count(repo_name):
     g = Github(login_or_token=AUTH_KEY)
     easy_count = 0
@@ -56,13 +69,10 @@ def get_easy_problems_count(repo_name):
         user = g.get_user()
         repo = user.get_repo(repo_name)
         contents = repo.get_contents("")
-        for content in contents:
-            if content.type == "dir":
-                dir_contents = repo.get_contents(content.path)
-                for dir_content in dir_contents:
-                    if dir_content.name == "README.md":
-                        if "Difficulty: Easy" in dir_content.decoded_content.decode("utf-8"):
-                            easy_count += 1
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(fetch_dir_contents, repo, content.path) for content in contents if content.type == "dir"]
+            for future in as_completed(futures):
+                easy_count += future.result()
     except GithubException as e:
         return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
     
