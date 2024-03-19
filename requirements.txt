@@ -2,3 +2,5 @@ Flask
 Flask-Caching
 PyGithub
 gunicorn
+beautifulsoup4
+lxml

@@ -3,6 +3,8 @@ from flask_caching import Cache
 from github import Github, GithubException
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from bs4 import BeautifulSoup
+import re
 
 AUTH_KEY = os.getenv('AUTH_KEY')
 
@@ -55,6 +57,38 @@ def get_repo_folder_count(repo_name):
     except GithubException as e:
         return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
     return jsonify({"schemaVersion": 1, "label": "Total Problems Solved", "message": str(folder_count), "color": "blue"})
+
+
+@app.route('/github/user/repos/<repo_name>/easy_problems_count')
+def get_easy_problems_count(repo_name):
+    g = Github(login_or_token=AUTH_KEY)
+    easy_problems_count = 0
+    try:
+        user = g.get_user()
+        repo = user.get_repo(repo_name)
+
+        def fetch_and_count_easy_problems(directory):
+            nonlocal easy_problems_count
+            contents = repo.get_contents(directory.path)
+            for content in contents:
+                if content.type == "file" and content.name.upper() == "README.MD":
+                    readme_content = content.decoded_content.decode()
+                    soup = BeautifulSoup(readme_content, 'html.parser')
+                    easy_badges = soup.find_all("img", alt="Difficulty: Easy")
+                    easy_problems_count += len(easy_badges)
+
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            directory_contents = [content for content in repo.get_contents("") if content.type == "dir"]
+            futures = [executor.submit(fetch_and_count_easy_problems, directory) for directory in directory_contents]
+            for future in as_completed(futures):
+                future.result()  
+
+    except GithubException as e:
+        return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
+
+    return jsonify({"schemaVersion": 1, "label": "Easy Problems", "message": str(easy_problems_count), "color": "green"})
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
