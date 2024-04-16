@@ -11,7 +11,7 @@ AUTH_KEY = os.getenv('AUTH_KEY')
 app = Flask(__name__)
 
 app.config['CACHE_TYPE'] = 'simple'
-app.config['CACHE_DEFAULT_TIMEOUT'] = 3600
+
 cache = Cache(app)
 
 def fetch_commit_count(repo, user_login):
@@ -26,6 +26,7 @@ def fetch_commit_count(repo, user_login):
 
 
 @app.route('/github/user/commits/total')
+@cache.cached(timeout=3600)
 def get_total_own_commits():
     g = Github(login_or_token=AUTH_KEY)
     total_own_commits = 0
@@ -44,6 +45,7 @@ def get_total_own_commits():
     return jsonify({"schemaVersion": 1, "label": "Total Commits", "message": str(total_own_commits), "color": "red"})
 
 @app.route('/github/user/repos/<repo_name>/folders')
+@cache.cached(timeout=3600)
 def get_repo_folder_count(repo_name):
     g = Github(login_or_token=AUTH_KEY)
     folder_count = 0
@@ -60,6 +62,7 @@ def get_repo_folder_count(repo_name):
 
 
 @app.route('/github/user/repos/<repo_name>/easy_problems_count')
+@cache.cached(timeout=3600)
 def get_medium_problems_count(repo_name):
     g = Github(login_or_token=AUTH_KEY)
     easy_problems_count = 0
@@ -89,6 +92,7 @@ def get_medium_problems_count(repo_name):
     return jsonify({"schemaVersion": 1, "label": "Easy Problems", "message": str(easy_problems_count), "color": "green"})
 
 @app.route('/github/user/repos/<repo_name>/medium_problems_count')
+@cache.cached(timeout=3600)
 def get_easy_problems_count(repo_name):
     g = Github(login_or_token=AUTH_KEY)
     easy_problems_count = 0
