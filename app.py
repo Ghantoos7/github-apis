@@ -149,7 +149,7 @@ def get_hard_problems_count(repo_name):
     except GithubException as e:
         return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
 
-    return jsonify({"schemaVersion": 1, "label": "Medium Problems", "message": str(easy_problems_count), "color": "red"})
+    return jsonify({"schemaVersion": 1, "label": "Hard Problems", "message": str(easy_problems_count), "color": "red"})
 
 if __name__ == '__main__':
     app.run(debug=True)
