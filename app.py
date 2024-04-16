@@ -11,7 +11,7 @@ AUTH_KEY = os.getenv('AUTH_KEY')
 app = Flask(__name__)
 
 app.config['CACHE_TYPE'] = 'simple'
-app.config['CACHE_DEFAULT_TIMEOUT'] = 43200
+app.config['CACHE_DEFAULT_TIMEOUT'] = 3600
 cache = Cache(app)
 
 def fetch_commit_count(repo, user_login):
@@ -60,7 +60,7 @@ def get_repo_folder_count(repo_name):
 
 
 @app.route('/github/user/repos/<repo_name>/easy_problems_count')
-def get_easy_problems_count(repo_name):
+def get_medium_problems_count(repo_name):
     g = Github(login_or_token=AUTH_KEY)
     easy_problems_count = 0
     try:
@@ -88,6 +88,34 @@ def get_easy_problems_count(repo_name):
 
     return jsonify({"schemaVersion": 1, "label": "Easy Problems", "message": str(easy_problems_count), "color": "green"})
 
+@app.route('/github/user/repos/<repo_name>/medium_problems_count')
+def get_easy_problems_count(repo_name):
+    g = Github(login_or_token=AUTH_KEY)
+    easy_problems_count = 0
+    try:
+        user = g.get_user()
+        repo = user.get_repo(repo_name)
+
+        def fetch_and_count_easy_problems(directory):
+            nonlocal easy_problems_count
+            contents = repo.get_contents(directory.path)
+            for content in contents:
+                if content.type == "file" and content.name.upper() == "README.MD":
+                    readme_content = content.decoded_content.decode()
+                    soup = BeautifulSoup(readme_content, 'html.parser')
+                    easy_badges = soup.find_all("img", alt="Difficulty: Medium")
+                    easy_problems_count += len(easy_badges)
+
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            directory_contents = [content for content in repo.get_contents("") if content.type == "dir"]
+            futures = [executor.submit(fetch_and_count_easy_problems, directory) for directory in directory_contents]
+            for future in as_completed(futures):
+                future.result()  
+
+    except GithubException as e:
+        return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
+
+    return jsonify({"schemaVersion": 1, "label": "Medium Problems", "message": str(easy_problems_count), "color": "orange"})
 
 
 if __name__ == '__main__':
