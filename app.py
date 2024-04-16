@@ -89,7 +89,7 @@ def get_medium_problems_count(repo_name):
     except GithubException as e:
         return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
 
-    return jsonify({"schemaVersion": 1, "label": "Easy Problems", "message": str(easy_problems_count), "color": "green"})
+    return jsonify({"schemaVersion": 1, "label": "Easy Problems", "message": str(easy_problems_count), "color": "emerlad"})
 
 @app.route('/github/user/repos/<repo_name>/medium_problems_count')
 @cache.cached(timeout=3600)
@@ -149,7 +149,7 @@ def get_hard_problems_count(repo_name):
     except GithubException as e:
         return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
 
-    return jsonify({"schemaVersion": 1, "label": "Medium Problems", "message": str(easy_problems_count), "color": "orange"})
+    return jsonify({"schemaVersion": 1, "label": "Medium Problems", "message": str(easy_problems_count), "color": "red"})
 
 if __name__ == '__main__':
     app.run(debug=True)
