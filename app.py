@@ -100,7 +100,7 @@ def get_easy_problems_count(repo_name):
         user = g.get_user()
         repo = user.get_repo(repo_name)
 
-        def fetch_and_count_easy_problems(directory):
+        def fetch_and_count_medium_problems(directory):
             nonlocal easy_problems_count
             contents = repo.get_contents(directory.path)
             for content in contents:
@@ -112,7 +112,7 @@ def get_easy_problems_count(repo_name):
 
         with ThreadPoolExecutor(max_workers=10) as executor:
             directory_contents = [content for content in repo.get_contents("") if content.type == "dir"]
-            futures = [executor.submit(fetch_and_count_easy_problems, directory) for directory in directory_contents]
+            futures = [executor.submit(fetch_and_count_medium_problems, directory) for directory in directory_contents]
             for future in as_completed(futures):
                 future.result()  
 
@@ -121,6 +121,35 @@ def get_easy_problems_count(repo_name):
 
     return jsonify({"schemaVersion": 1, "label": "Medium Problems", "message": str(easy_problems_count), "color": "orange"})
 
+@app.route('/github/user/repos/<repo_name>/hard_problems_count')
+@cache.cached(timeout=3600)
+def get_hard_problems_count(repo_name):
+    g = Github(login_or_token=AUTH_KEY)
+    easy_problems_count = 0
+    try:
+        user = g.get_user()
+        repo = user.get_repo(repo_name)
+
+        def fetch_and_count_hard_problems(directory):
+            nonlocal easy_problems_count
+            contents = repo.get_contents(directory.path)
+            for content in contents:
+                if content.type == "file" and content.name.upper() == "README.MD":
+                    readme_content = content.decoded_content.decode()
+                    soup = BeautifulSoup(readme_content, 'html.parser')
+                    easy_badges = soup.find_all("img", alt="Difficulty: Hard")
+                    easy_problems_count += len(easy_badges)
+
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            directory_contents = [content for content in repo.get_contents("") if content.type == "dir"]
+            futures = [executor.submit(fetch_and_count_hard_problems, directory) for directory in directory_contents]
+            for future in as_completed(futures):
+                future.result()  
+
+    except GithubException as e:
+        return jsonify({"error": str(e), "message": "Error fetching repository information"}), 500
+
+    return jsonify({"schemaVersion": 1, "label": "Medium Problems", "message": str(easy_problems_count), "color": "orange"})
 
 if __name__ == '__main__':
     app.run(debug=True)
